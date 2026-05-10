@@ -1,8 +1,8 @@
 class ApiConstants {
-  static const String androidEmulatorBaseUrl = 'http://10.0.2.2:5000';
-  static const String iosSimulatorBaseUrl = 'http://127.0.0.1:5000';
-  static const String predictUrl = '/predict_url';
-  static const String health = '/health';
+  /// Production / tunnel URL for the PhishGuard backend.
+  static const String baseUrl =
+      'https://tabloid-hunk-awkward.ngrok-free.dev';
 
-  static String get baseUrl => androidEmulatorBaseUrl;
+  static const String predictUrl = '/predict_url';
+  static const String historyUrl = '/history';
 }

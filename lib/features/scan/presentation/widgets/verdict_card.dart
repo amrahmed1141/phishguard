@@ -6,12 +6,13 @@ class VerdictCard extends StatelessWidget {
   const VerdictCard({super.key, required this.verdict});
 
   Color _getVerdictColor() {
-    switch (verdict.toLowerCase()) {
-      case 'safe':
+    switch (verdict.toUpperCase()) {
+      case 'SAFE':
         return Colors.green;
-      case 'suspicious':
+      case 'SUSPICIOUS':
         return Colors.orange;
-      case 'dangerous':
+      case 'PHISHING':
+      case 'DANGEROUS':
         return Colors.red;
       default:
         return Colors.grey;
@@ -19,12 +20,13 @@ class VerdictCard extends StatelessWidget {
   }
 
   IconData _getVerdictIcon() {
-    switch (verdict.toLowerCase()) {
-      case 'safe':
+    switch (verdict.toUpperCase()) {
+      case 'SAFE':
         return Icons.check_circle;
-      case 'suspicious':
+      case 'SUSPICIOUS':
         return Icons.warning;
-      case 'dangerous':
+      case 'PHISHING':
+      case 'DANGEROUS':
         return Icons.dangerous;
       default:
         return Icons.help;
@@ -33,8 +35,9 @@ class VerdictCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = _getVerdictColor();
     return Card(
-      color: _getVerdictColor().withOpacity(0.1),
+      color: color.withOpacity(0.1),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -42,7 +45,7 @@ class VerdictCard extends StatelessWidget {
             Icon(
               _getVerdictIcon(),
               size: 48,
-              color: _getVerdictColor(),
+              color: color,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -57,11 +60,11 @@ class VerdictCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    verdict,
+                    verdict.toUpperCase(),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: _getVerdictColor(),
+                      color: color,
                     ),
                   ),
                 ],

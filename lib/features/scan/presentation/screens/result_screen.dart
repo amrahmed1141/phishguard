@@ -1,26 +1,47 @@
 import 'package:flutter/material.dart';
+
 import '../../data/scan_model.dart';
-import '../widgets/verdict_card.dart';
 import '../widgets/confidence_bar.dart';
 import '../widgets/risk_badge.dart';
+import '../widgets/verdict_card.dart';
 
 class ResultScreen extends StatelessWidget {
+  const ResultScreen({super.key, required this.scanResult});
+
   final ScanModel scanResult;
 
-  const ResultScreen({super.key, required this.scanResult});
+  String get _verdictUpper => scanResult.verdict.toUpperCase();
+
+  bool get _isSafe => _verdictUpper == 'SAFE';
+
+  bool get _isPhishing => _verdictUpper == 'PHISHING';
+
+  Color get _accent {
+    if (_isSafe) return Colors.green;
+    if (_isPhishing) return Colors.red;
+    return Colors.grey;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bg = _isSafe
+        ? Colors.green.shade50
+        : (_isPhishing ? Colors.red.shade50 : Colors.grey.shade100);
+
     return Scaffold(
+      backgroundColor: bg,
       appBar: AppBar(
         title: const Text('Scan Result'),
+        backgroundColor: _accent.withOpacity(0.15),
+        foregroundColor: theme.colorScheme.onSurface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -31,24 +52,23 @@ class ResultScreen extends StatelessWidget {
             RiskBadge(riskLevel: scanResult.riskLevel),
             const SizedBox(height: 24),
             Card(
+              color: _accent.withOpacity(0.08),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Scanned URL',
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    SelectableText(
                       scanResult.url,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.blue,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.primary,
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -57,39 +77,75 @@ class ResultScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (scanResult.threats.isNotEmpty) ...[
-              const Text(
-                'Detected Threats',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ...scanResult.threats.map((threat) => Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.warning, color: Colors.orange),
-                      title: Text(threat),
-                    ),
-                  )),
-            ],
-            const SizedBox(height: 16),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Scan Details',
-                      style: TextStyle(
-                        fontSize: 16,
+                    Text(
+                      'Engine',
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text('ID: ${scanResult.id}'),
-                    Text('Scanned: ${scanResult.scannedAt.toString()}'),
+                    Text(
+                      scanResult.engine.isEmpty ? '—' : scanResult.engine,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Signals',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            if (scanResult.signals.isEmpty)
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.info_outline, color: theme.hintColor),
+                  title: Text(
+                    'No signals reported',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              )
+            else
+              ...scanResult.signals.map(
+                (signal) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Card(
+                    child: ListTile(
+                      leading: Icon(Icons.flag_outlined, color: _accent),
+                      title: Text(signal),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Scan details',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Scanned: ${scanResult.scannedAt.toLocal()}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                   ],
                 ),
               ),

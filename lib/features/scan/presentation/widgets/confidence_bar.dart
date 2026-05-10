@@ -48,7 +48,7 @@ class ConfidenceBar extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '${(confidence * 100).toStringAsFixed(0)}%',
+                  '${(confidence * 100).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
