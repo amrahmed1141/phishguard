@@ -40,6 +40,7 @@ class PhishGuardApp extends StatelessWidget {
       title: 'PhishGuard',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light,
       home: const HomeScreen(),
     );
   }

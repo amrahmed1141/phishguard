@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../cubit/scan_cubit.dart';
 import '../../cubit/scan_state.dart';
+import '../widgets/phishguard_logo.dart';
 import 'history_screen.dart';
 import 'result_screen.dart';
 
@@ -50,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => ResultScreen(scanResult: result)),
             );
-            // Reset state so we don't navigate again on rebuild
             context.read<ScanCubit>().reset();
           },
           failure: (message) {
@@ -66,10 +67,25 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('PhishGuard'),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PhishGuardLogo(
+                size: 28,
+                strokeColor: theme.appBarTheme.foregroundColor ?? Colors.white,
+                strokeWidth: 2,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'PhishGuard',
+                style: theme.appBarTheme.titleTextStyle ?? theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+              ),
+            ],
+          ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.history),
+              tooltip: 'History',
+              icon: const Icon(Icons.history_rounded),
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const HistoryScreen()),
@@ -80,60 +96,28 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 8),
-                  Icon(Icons.shield_outlined, size: 56, color: colorScheme.primary),
+                  _HeroHeader(colorScheme: colorScheme, theme: theme),
+                  const SizedBox(height: 28),
+                  _buildUrlCard(context, theme, colorScheme),
                   const SizedBox(height: 20),
-                  Text(
-                    'Check a link before you open it',
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _urlController,
-                    keyboardType: TextInputType.url,
-                    textInputAction: TextInputAction.done,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                      labelText: 'URL',
-                      hintText: 'https://example.com/page',
-                      prefixIcon: const Icon(Icons.link),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    validator: _validateUrl,
-                    onFieldSubmitted: (_) => _onScan(context),
-                  ),
-                  const SizedBox(height: 24),
                   BlocBuilder<ScanCubit, ScanState>(
                     builder: (context, state) {
                       final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
-                      return FilledButton.icon(
+                      return _ScanGradientButton(
+                        isLoading: isLoading,
                         onPressed: isLoading ? null : () => _onScan(context),
-                        icon: isLoading
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: colorScheme.onPrimary,
-                                ),
-                              )
-                            : const Icon(Icons.search),
-                        label: Text(isLoading ? 'Scanning…' : 'Scan URL'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
+                  _buildFeatureRow(theme, colorScheme),
+                  const SizedBox(height: 20),
                   _buildTipCard(theme, colorScheme),
                 ],
               ),
@@ -144,17 +128,121 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTipCard(ThemeData theme, ColorScheme colorScheme) {
-    return Card(
+  Widget _buildUrlCard(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    return Material(
       elevation: 0,
-      color: colorScheme.surfaceVariant.withOpacity(0.6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: colorScheme.surface,
+      shadowColor: colorScheme.shadow.withOpacity(0.12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppShapes.radiusMd),
+        side: BorderSide(color: colorScheme.outline.withOpacity(0.25)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.link_rounded, size: 22, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Paste a link',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _urlController,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.done,
+              autocorrect: false,
+              decoration: InputDecoration(
+                labelText: 'URL',
+                hintText: 'https://example.com/page',
+                prefixIcon: Icon(Icons.language_rounded, color: colorScheme.onSurfaceVariant),
+              ),
+              validator: _validateUrl,
+              onFieldSubmitted: (_) => _onScan(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureRow(ThemeData theme, ColorScheme colorScheme) {
+    Widget chip({required IconData icon, required String title, required String subtitle}) {
+      return Expanded(
+        child: Material(
+          color: colorScheme.surfaceVariant.withOpacity(0.45),
+          borderRadius: BorderRadius.circular(AppShapes.radiusSm),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 22, color: colorScheme.primary),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontSize: 13,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        chip(
+          icon: Icons.shield_moon_outlined,
+          title: 'Pre-check',
+          subtitle: 'Analyze before you tap',
+        ),
+        const SizedBox(width: 10),
+        chip(
+          icon: Icons.bolt_outlined,
+          title: 'Fast',
+          subtitle: 'Backend scan in seconds',
+        ),
+        const SizedBox(width: 10),
+        chip(
+          icon: Icons.history_rounded,
+          title: 'History',
+          subtitle: 'Review past results',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTipCard(ThemeData theme, ColorScheme colorScheme) {
+    return Material(
+      color: colorScheme.primaryContainer.withOpacity(0.55),
+      borderRadius: BorderRadius.circular(AppShapes.radiusMd),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.info_outline, color: colorScheme.primary, size: 22),
+            Icon(Icons.info_outline_rounded, color: colorScheme.primary, size: 22),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -163,6 +251,141 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroHeader extends StatelessWidget {
+  const _HeroHeader({required this.colorScheme, required this.theme});
+
+  final ColorScheme colorScheme;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppShapes.radiusLg),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.primary,
+            colorScheme.primary.withOpacity(0.88),
+            colorScheme.secondary,
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.primary.withOpacity(0.35),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const PhishGuardLogo(size: 76, strokeColor: Colors.white, strokeWidth: 3),
+          const SizedBox(height: 18),
+          Text(
+            'Phishing protection for every link',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white.withOpacity(0.95),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Check a link before you open it',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              height: 1.35,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScanGradientButton extends StatelessWidget {
+  const _ScanGradientButton({
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = BorderRadius.circular(AppShapes.radiusMd);
+
+    final gradient = LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [
+        colorScheme.primary,
+        Color.lerp(colorScheme.primary, colorScheme.secondary, 0.55)!,
+      ],
+    );
+
+    return Material(
+      elevation: onPressed == null ? 0 : 3,
+      shadowColor: colorScheme.primary.withOpacity(0.45),
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: radius,
+        child: Ink(
+          height: 54,
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            gradient: onPressed == null ? null : gradient,
+            color: onPressed == null ? colorScheme.surfaceVariant.withOpacity(0.9) : null,
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLoading)
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: colorScheme.primary,
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.radar_rounded,
+                    color: onPressed == null ? colorScheme.onSurfaceVariant : Colors.white,
+                    size: 22,
+                  ),
+                const SizedBox(width: 10),
+                Text(
+                  isLoading ? 'Scanning…' : 'Scan URL',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: onPressed == null ? colorScheme.onSurfaceVariant : Colors.white,
+                    letterSpacing: 0.6,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
