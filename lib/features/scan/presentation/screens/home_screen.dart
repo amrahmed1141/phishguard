@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -65,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       child: Scaffold(
+        backgroundColor: theme.primaryColor,
         appBar: AppBar(
           title: Row(
             mainAxisSize: MainAxisSize.min,
@@ -114,46 +117,88 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUrlCard(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
-    return Material(
-      elevation: 0,
-      color: colorScheme.surface,
-      shadowColor: colorScheme.shadow.withOpacity(0.12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppShapes.radiusMd),
-        side: BorderSide(color: colorScheme.outline.withOpacity(0.25)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    final radius = BorderRadius.circular(AppShapes.radiusMd);
+    final fieldRadius = BorderRadius.circular(AppShapes.radiusSm);
+    const white = Colors.white;
+
+    OutlineInputBorder glassFieldBorder({double width = 1.5}) {
+      return OutlineInputBorder(
+        borderRadius: fieldRadius,
+        borderSide: BorderSide(color: white, width: width),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: radius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            color: white.withOpacity(0.12),
+            border: Border.all(color: white.withOpacity(0.42), width: 1.25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.18),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.link_rounded, size: 22, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Paste a link',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: colorScheme.onSurface,
+                Row(
+                  children: [
+                    Icon(Icons.link_rounded, size: 22, color: white.withOpacity(0.95)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Paste a link',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _urlController,
+                  keyboardType: TextInputType.url,
+                  textInputAction: TextInputAction.done,
+                  autocorrect: false,
+                  style: theme.textTheme.bodyLarge?.copyWith(color: white),
+                  cursorColor: white,
+                  decoration: InputDecoration(
+                    labelText: 'URL',
+                    hintText: 'https://example.com/page',
+                    labelStyle: TextStyle(color: white.withOpacity(0.88)),
+                    floatingLabelStyle: const TextStyle(color: white, fontWeight: FontWeight.w500),
+                    hintStyle: TextStyle(color: white.withOpacity(0.45)),
+                    prefixIcon: Icon(Icons.language_rounded, color: white.withOpacity(0.88)),
+                    filled: true,
+                    fillColor: white.withOpacity(0.08),
+                    enabledBorder: glassFieldBorder(),
+                    focusedBorder: glassFieldBorder(width: 2),
+                    disabledBorder: glassFieldBorder(),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: fieldRadius,
+                      borderSide: BorderSide(color: colorScheme.error, width: 1.5),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: fieldRadius,
+                      borderSide: BorderSide(color: colorScheme.error, width: 2),
+                    ),
+                    errorStyle: theme.textTheme.bodySmall?.copyWith(color: colorScheme.error),
                   ),
+                  validator: _validateUrl,
+                  onFieldSubmitted: (_) => _onScan(context),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _urlController,
-              keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.done,
-              autocorrect: false,
-              decoration: InputDecoration(
-                labelText: 'URL',
-                hintText: 'https://example.com/page',
-                prefixIcon: Icon(Icons.language_rounded, color: colorScheme.onSurfaceVariant),
-              ),
-              validator: _validateUrl,
-              onFieldSubmitted: (_) => _onScan(context),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -238,8 +283,8 @@ class _ScanGradientButton extends StatelessWidget {
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       colors: [
-        colorScheme.primary,
-        Color.lerp(colorScheme.primary, colorScheme.secondary, 0.55)!,
+        Colors.green,
+        Colors.green.shade500,
       ],
     );
 
