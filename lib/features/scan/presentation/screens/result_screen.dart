@@ -12,54 +12,30 @@ class ResultScreen extends StatelessWidget {
 
   final ScanModel scanResult;
 
-  String get _verdictUpper => scanResult.verdict.toUpperCase();
-
-  bool get _isSafe => _verdictUpper == 'SAFE';
-
-  bool get _isPhishing => _verdictUpper == 'PHISHING';
-
-  bool get _isSuspicious => _verdictUpper == 'SUSPICIOUS';
-
-  /// Safe / good → green; phishing → red (other verdicts stay distinct).
-  Color get _accent {
-    if (_isSafe) return const Color(0xFF16A34A);
-    if (_isPhishing) return const Color(0xFFDC2626);
-    if (_isSuspicious) return Colors.orange.shade700;
-    return Colors.blueGrey.shade500;
-  }
-
-  Color _scaffoldBackground(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    if (_isSafe) return Colors.green.shade50;
-    if (_isPhishing) return Colors.red.shade50;
-    if (_isSuspicious) return Colors.orange.shade50;
-    return scheme.surface;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final bg = _scaffoldBackground(context);
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             PhishGuardLogo(
               size: 26,
-              strokeColor: _accent,
+              strokeColor: theme.appBarTheme.foregroundColor ?? Colors.white,
               strokeWidth: 2,
             ),
             const SizedBox(width: 8),
-            const Text('Scan Result'),
+            Text(
+              'Scan Result',
+              style: theme.appBarTheme.titleTextStyle ??
+                  theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+            ),
           ],
         ),
-        backgroundColor: _accent.withOpacity(0.12),
-        foregroundColor: colorScheme.onSurface,
-        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -77,7 +53,6 @@ class ResultScreen extends StatelessWidget {
             RiskBadge(riskLevel: scanResult.riskLevel),
             const SizedBox(height: 22),
             _SectionCard(
-              accent: _accent,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -145,11 +120,10 @@ class ResultScreen extends StatelessWidget {
                 (signal) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _SectionCard(
-                    accent: _accent.withOpacity(0.35),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.flag_rounded, color: _accent, size: 22),
+                        Icon(Icons.flag_rounded, color: colorScheme.primary, size: 22),
                         const SizedBox(width: 12),
                         Expanded(child: Text(signal, style: theme.textTheme.bodyLarge)),
                       ],
@@ -214,26 +188,21 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.child, this.accent});
+  const _SectionCard({required this.child});
 
   final Widget child;
-  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final borderColor = accent != null
-        ? accent!.withOpacity(0.35)
-        : colorScheme.outline.withOpacity(0.25);
-    final fill = accent != null ? accent!.withOpacity(0.06) : colorScheme.surface;
 
     return Material(
-      color: fill,
+      color: colorScheme.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppShapes.radiusMd),
-        side: BorderSide(color: borderColor),
+        side: BorderSide(color: colorScheme.outline.withOpacity(0.25)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),

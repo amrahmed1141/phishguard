@@ -5,6 +5,7 @@ import 'package:phishguard/core/network/dio_client.dart';
 import 'package:phishguard/features/scan/cubit/scan_cubit.dart';
 import 'package:phishguard/features/scan/data/scan_api_service.dart';
 import 'package:phishguard/features/scan/data/scan_repository.dart';
+import 'package:phishguard/features/scan/presentation/screens/splash_screen.dart';
 import 'package:phishguard/main.dart';
 
 void main() {
@@ -28,6 +29,9 @@ void main() {
         ),
       ),
     );
+
+    await tester.pump(SplashScreen.displayDuration + const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     expect(find.text('PhishGuard'), findsOneWidget);
     expect(find.textContaining('Check a link'), findsOneWidget);

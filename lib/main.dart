@@ -6,7 +6,7 @@ import 'core/theme/app_theme.dart';
 import 'features/scan/cubit/scan_cubit.dart';
 import 'features/scan/data/scan_api_service.dart';
 import 'features/scan/data/scan_repository.dart';
-import 'features/scan/presentation/screens/home_screen.dart';
+import 'features/scan/presentation/screens/splash_screen.dart';
 
 void main() {
   // Initialize Core Services
@@ -41,7 +41,7 @@ class PhishGuardApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       themeMode: ThemeMode.light,
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
 }

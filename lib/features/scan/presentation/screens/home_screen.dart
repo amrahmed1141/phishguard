@@ -5,7 +5,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../cubit/scan_cubit.dart';
 import '../../cubit/scan_state.dart';
 import '../widgets/phishguard_logo.dart';
-import 'history_screen.dart';
 import 'result_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -78,21 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 10),
               Text(
                 'PhishGuard',
-                style: theme.appBarTheme.titleTextStyle ?? theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+                style: theme.appBarTheme.titleTextStyle ??
+                    theme.textTheme.titleLarge?.copyWith(color: Colors.white),
               ),
             ],
           ),
-          actions: [
-            IconButton(
-              tooltip: 'History',
-              icon: const Icon(Icons.history_rounded),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                );
-              },
-            ),
-          ],
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -115,10 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 28),
-                  _buildFeatureRow(theme, colorScheme),
-                  const SizedBox(height: 20),
-                  _buildTipCard(theme, colorScheme),
                 ],
               ),
             ),
@@ -167,88 +152,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               validator: _validateUrl,
               onFieldSubmitted: (_) => _onScan(context),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeatureRow(ThemeData theme, ColorScheme colorScheme) {
-    Widget chip({required IconData icon, required String title, required String subtitle}) {
-      return Expanded(
-        child: Material(
-          color: colorScheme.surfaceVariant.withOpacity(0.45),
-          borderRadius: BorderRadius.circular(AppShapes.radiusSm),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(icon, size: 22, color: colorScheme.primary),
-                const SizedBox(height: 10),
-                Text(
-                  title,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: 13,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        chip(
-          icon: Icons.shield_moon_outlined,
-          title: 'Pre-check',
-          subtitle: 'Analyze before you tap',
-        ),
-        const SizedBox(width: 10),
-        chip(
-          icon: Icons.bolt_outlined,
-          title: 'Fast',
-          subtitle: 'Backend scan in seconds',
-        ),
-        const SizedBox(width: 10),
-        chip(
-          icon: Icons.history_rounded,
-          title: 'History',
-          subtitle: 'Review past results',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTipCard(ThemeData theme, ColorScheme colorScheme) {
-    return Material(
-      color: colorScheme.primaryContainer.withOpacity(0.55),
-      borderRadius: BorderRadius.circular(AppShapes.radiusMd),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.info_outline_rounded, color: colorScheme.primary, size: 22),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Tip: Use a full URL with a scheme (https://…). The scan runs against the configured PhishGuard backend.',
-                style: theme.textTheme.bodySmall,
-              ),
             ),
           ],
         ),
