@@ -1,11 +1,10 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../cubit/scan_cubit.dart';
 import '../../cubit/scan_state.dart';
+import '../widgets/glass_panel.dart';
 import '../widgets/phishguard_logo.dart';
 import 'result_screen.dart';
 
@@ -117,7 +116,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUrlCard(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
-    final radius = BorderRadius.circular(AppShapes.radiusMd);
     final fieldRadius = BorderRadius.circular(AppShapes.radiusSm);
     const white = Colors.white;
 
@@ -128,78 +126,57 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            color: white.withOpacity(0.12),
-            border: Border.all(color: white.withOpacity(0.42), width: 1.25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.18),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
+    return GlassPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.link_rounded, size: 22, color: white.withOpacity(0.95)),
+              const SizedBox(width: 8),
+              Text(
+                'Paste a link',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.link_rounded, size: 22, color: white.withOpacity(0.95)),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Paste a link',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _urlController,
-                  keyboardType: TextInputType.url,
-                  textInputAction: TextInputAction.done,
-                  autocorrect: false,
-                  style: theme.textTheme.bodyLarge?.copyWith(color: white),
-                  cursorColor: white,
-                  decoration: InputDecoration(
-                    labelText: 'URL',
-                    hintText: 'https://example.com/page',
-                    labelStyle: TextStyle(color: white.withOpacity(0.88)),
-                    floatingLabelStyle: const TextStyle(color: white, fontWeight: FontWeight.w500),
-                    hintStyle: TextStyle(color: white.withOpacity(0.45)),
-                    prefixIcon: Icon(Icons.language_rounded, color: white.withOpacity(0.88)),
-                    filled: true,
-                    fillColor: white.withOpacity(0.08),
-                    enabledBorder: glassFieldBorder(),
-                    focusedBorder: glassFieldBorder(width: 2),
-                    disabledBorder: glassFieldBorder(),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: fieldRadius,
-                      borderSide: BorderSide(color: colorScheme.error, width: 1.5),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: fieldRadius,
-                      borderSide: BorderSide(color: colorScheme.error, width: 2),
-                    ),
-                    errorStyle: theme.textTheme.bodySmall?.copyWith(color: colorScheme.error),
-                  ),
-                  validator: _validateUrl,
-                  onFieldSubmitted: (_) => _onScan(context),
-                ),
-              ],
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: _urlController,
+            keyboardType: TextInputType.url,
+            textInputAction: TextInputAction.done,
+            autocorrect: false,
+            style: theme.textTheme.bodyLarge?.copyWith(color: white),
+            cursorColor: white,
+            decoration: InputDecoration(
+              labelText: 'URL',
+              hintText: 'https://example.com/page',
+              labelStyle: TextStyle(color: white.withOpacity(0.88)),
+              floatingLabelStyle: const TextStyle(color: white, fontWeight: FontWeight.w500),
+              hintStyle: TextStyle(color: white.withOpacity(0.45)),
+              prefixIcon: Icon(Icons.language_rounded, color: white.withOpacity(0.88)),
+              filled: true,
+              fillColor: white.withOpacity(0.08),
+              enabledBorder: glassFieldBorder(),
+              focusedBorder: glassFieldBorder(width: 2),
+              disabledBorder: glassFieldBorder(),
+              errorBorder: OutlineInputBorder(
+                borderRadius: fieldRadius,
+                borderSide: BorderSide(color: colorScheme.error, width: 1.5),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: fieldRadius,
+                borderSide: BorderSide(color: colorScheme.error, width: 2),
+              ),
+              errorStyle: theme.textTheme.bodySmall?.copyWith(color: colorScheme.error),
             ),
+            validator: _validateUrl,
+            onFieldSubmitted: (_) => _onScan(context),
           ),
-        ),
+        ],
       ),
     );
   }

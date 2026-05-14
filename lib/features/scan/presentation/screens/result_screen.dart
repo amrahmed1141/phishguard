@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/scan_model.dart';
 import '../widgets/confidence_bar.dart';
+import '../widgets/glass_panel.dart';
 import '../widgets/phishguard_logo.dart';
 import '../widgets/risk_badge.dart';
 import '../widgets/verdict_card.dart';
@@ -15,10 +16,9 @@ class ResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -44,29 +44,33 @@ class ResultScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             VerdictCard(verdict: scanResult.verdict),
             const SizedBox(height: 16),
-            ConfidenceBar(confidence: scanResult.confidence),
+            GlassPanel(child: ConfidenceBar(confidence: scanResult.confidence)),
             const SizedBox(height: 14),
-            RiskBadge(riskLevel: scanResult.riskLevel),
+            GlassPanel(
+              child: SizedBox(
+                width: double.infinity,
+                child: RiskBadge(riskLevel: scanResult.riskLevel),
+              ),
+            ),
             const SizedBox(height: 22),
-            _SectionCard(
+            GlassPanel(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionTitle(
                     icon: Icons.link_rounded,
                     label: 'Scanned URL',
-                    colorScheme: colorScheme,
                     theme: theme,
                   ),
                   const SizedBox(height: 10),
                   SelectableText(
                     scanResult.url,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.primary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -74,20 +78,19 @@ class ResultScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            _SectionCard(
+            GlassPanel(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionTitle(
                     icon: Icons.memory_rounded,
                     label: 'Engine',
-                    colorScheme: colorScheme,
                     theme: theme,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     scanResult.engine.isEmpty ? '—' : scanResult.engine,
-                    style: theme.textTheme.bodyLarge,
+                    style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
                   ),
                 ],
               ),
@@ -97,19 +100,22 @@ class ResultScreen extends StatelessWidget {
               'Signals',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 10),
             if (scanResult.signals.isEmpty)
-              _SectionCard(
+              GlassPanel(
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline_rounded, color: colorScheme.onSurfaceVariant),
+                    Icon(Icons.info_outline_rounded, color: Colors.white.withOpacity(0.75)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'No signals reported',
-                        style: theme.textTheme.bodyMedium,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.88),
+                        ),
                       ),
                     ),
                   ],
@@ -119,33 +125,39 @@ class ResultScreen extends StatelessWidget {
               ...scanResult.signals.map(
                 (signal) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _SectionCard(
+                  child: GlassPanel(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.flag_rounded, color: colorScheme.primary, size: 22),
+                        Icon(Icons.flag_rounded, color: Colors.white.withOpacity(0.9), size: 22),
                         const SizedBox(width: 12),
-                        Expanded(child: Text(signal, style: theme.textTheme.bodyLarge)),
+                        Expanded(
+                          child: Text(
+                            signal,
+                            style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
             const SizedBox(height: 14),
-            _SectionCard(
+            GlassPanel(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionTitle(
                     icon: Icons.schedule_rounded,
                     label: 'Scan details',
-                    colorScheme: colorScheme,
                     theme: theme,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Scanned: ${scanResult.scannedAt.toLocal()}',
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withOpacity(0.88),
+                    ),
                   ),
                 ],
               ),
@@ -161,53 +173,28 @@ class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
     required this.icon,
     required this.label,
-    required this.colorScheme,
     required this.theme,
   });
 
   final IconData icon;
   final String label;
-  final ColorScheme colorScheme;
   final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
+    final c = Colors.white.withOpacity(0.92);
     return Row(
       children: [
-        Icon(icon, size: 20, color: colorScheme.primary),
+        Icon(icon, size: 20, color: c),
         const SizedBox(width: 8),
         Text(
           label,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
+            color: Colors.white,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Material(
-      color: colorScheme.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppShapes.radiusMd),
-        side: BorderSide(color: colorScheme.outline.withOpacity(0.25)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: child,
-      ),
     );
   }
 }
