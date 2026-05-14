@@ -23,11 +23,7 @@ class ResultScreen extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PhishGuardLogo(
-              size: 26,
-              strokeColor: theme.appBarTheme.foregroundColor ?? Colors.white,
-              strokeWidth: 2,
-            ),
+            const PhishGuardLogo(size: 26),
             const SizedBox(width: 8),
             Text(
               'Scan Result',

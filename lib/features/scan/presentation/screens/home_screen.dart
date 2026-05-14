@@ -49,9 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
       listener: (context, state) {
         state.whenOrNull(
           success: (result) {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ResultScreen(scanResult: result)),
-            );
+            Navigator.of(context)
+                .push(
+              MaterialPageRoute(
+                builder: (context) => ResultScreen(scanResult: result),
+              ),
+            )
+                .then((_) {
+              if (!mounted) return;
+              _urlController.clear();
+              _formKey.currentState?.reset();
+            });
             context.read<ScanCubit>().reset();
           },
           failure: (message) {
@@ -71,11 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              PhishGuardLogo(
-                size: 28,
-                strokeColor: theme.appBarTheme.foregroundColor ?? Colors.white,
-                strokeWidth: 2,
-              ),
+              const PhishGuardLogo(size: 28),
               const SizedBox(width: 10),
               Text(
                 'PhishGuard',
@@ -214,7 +218,7 @@ class _HeroHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const PhishGuardLogo(size: 76, strokeColor: Colors.white, strokeWidth: 3),
+          const PhishGuardLogo(size: 76),
           const SizedBox(height: 18),
           Text(
             'Phishing protection for every link',

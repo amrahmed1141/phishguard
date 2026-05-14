@@ -38,11 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const PhishGuardLogo(
-                size: 96,
-                strokeColor: Colors.white,
-                strokeWidth: 3.2,
-              ),
+              const PhishGuardLogo(size: 96),
               const SizedBox(height: 28),
               Text(
                 'PhishGuard',
