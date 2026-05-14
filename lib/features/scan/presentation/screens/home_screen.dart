@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const PhishGuardLogo(size: 28),
+              const PhishGuardLogo(size: 42),
               const SizedBox(width: 10),
               Text(
                 'PhishGuard',
@@ -218,7 +218,7 @@ class _HeroHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const PhishGuardLogo(size: 76),
+          const PhishGuardLogo(size: 112),
           const SizedBox(height: 18),
           Text(
             'Phishing protection for every link',

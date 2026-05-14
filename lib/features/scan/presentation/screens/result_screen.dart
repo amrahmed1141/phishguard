@@ -23,7 +23,7 @@ class ResultScreen extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const PhishGuardLogo(size: 26),
+            const PhishGuardLogo(size: 40),
             const SizedBox(width: 8),
             Text(
               'Scan Result',

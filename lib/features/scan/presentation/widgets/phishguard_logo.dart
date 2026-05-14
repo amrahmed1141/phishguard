@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class PhishGuardLogo extends StatelessWidget {
   const PhishGuardLogo({
     super.key,
-    this.size = 72,
+    this.size = 96,
     this.fit = BoxFit.contain,
   });
 
